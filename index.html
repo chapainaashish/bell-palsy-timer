@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facial Recovery Timer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .timer-box {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    #step {
+      font-size: 1.25rem;
+      margin: 20px 0 10px;
+    }
+    #desc {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      color: #444;
+    }
+    #countdown {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    video {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      transform: scaleX(-1);
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-box">
+    <h1>Bell's Palsy Recovery Routine</h1>
+    <div id="step">Click Start to Begin</div>
+    <div id="desc"></div>
+    <div id="countdown"></div>
+    <button id="startBtn">Start Routine</button>
+    <video id="mirror" autoplay playsinline muted></video>
+  </div>
+
+  <script>
+    const routine = [
+      { name: "Warm-Up Massage", duration: 60, desc: "Use gentle circular motions: forehead, temples, cheeks, around nose, jawline, and under the eyes. 10 seconds each." },
+      { name: "Blink Hold (10 reps × 3s)", duration: 60, desc: "Gently close both eyes, hold for 3 seconds, then open. Focus on even movement." },
+      { name: "Half Squints (10 reps × 2s)", duration: 60, desc: "Squint eyes halfway, hold for 2 seconds. Keep forehead relaxed." },
+      { name: "Nose Wrinkle (10 reps × 3s)", duration: 60, desc: "Wrinkle nose as if smelling something bad. Try to move both sides. Support weak side with fingers if needed." },
+      { name: "Upper Lip Lift (10 reps × 3s)", duration: 60, desc: "Lift upper lip like snarling. Hold for 3 seconds, relax. Focus on symmetry." },
+      { name: "Smile Hold (6 reps × 5s)", duration: 60, desc: "Smile softly with closed lips. Hold for 5 seconds. Use mirror and fingers to guide even movement." },
+      { name: "'E' and 'O' Sounds (10 reps)", duration: 60, desc: "Say 'Eeeee' and 'Ooooo' slowly. Watch lip corners in mirror for symmetry." },
+      { name: "Cheek Puff (6 reps × 5s)", duration: 60, desc: "Puff both cheeks with air. Hold for 5 seconds. Don’t let air leak from weaker side." },
+      { name: "Cooldown Massage", duration: 120, desc: "Repeat the same gentle massage as warm-up to relax the face." }
+    ];
+
+    let currentStep = 0;
+    let timeLeft = 0;
+    let timer;
+
+    const stepDiv = document.getElementById("step");
+    const descDiv = document.getElementById("desc");
+    const countdownDiv = document.getElementById("countdown");
+    const startBtn = document.getElementById("startBtn");
+    const mirrorVideo = document.getElementById("mirror");
+
+    async function enableCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        mirrorVideo.srcObject = stream;
+      } catch (err) {
+        mirrorVideo.parentElement.removeChild(mirrorVideo);
+        console.warn("Camera access denied or unavailable.");
+      }
+    }
+
+    function startRoutine() {
+      startBtn.disabled = true;
+      currentStep = 0;
+      runStep();
+    }
+
+    function runStep() {
+      if (currentStep >= routine.length) {
+        stepDiv.textContent = "✅ Routine Complete!";
+        descDiv.textContent = "Great job! Do this twice daily.";
+        countdownDiv.textContent = "";
+        startBtn.disabled = false;
+        startBtn.textContent = "Restart";
+        return;
+      }
+      const step = routine[currentStep];
+      stepDiv.textContent = step.name;
+      descDiv.textContent = step.desc;
+      timeLeft = step.duration;
+      countdownDiv.textContent = timeLeft;
+
+      timer = setInterval(() => {
+        timeLeft--;
+        countdownDiv.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          currentStep++;
+          runStep();
+        }
+      }, 1000);
+    }
+
+    startBtn.addEventListener("click", startRoutine);
+    enableCamera();
+  </script>
+</body>
+</html>
